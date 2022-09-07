@@ -5,8 +5,6 @@
 </template>
 
 <script>
-// git log 查看commit记录
-// git
 export default {}
 </script>
 
