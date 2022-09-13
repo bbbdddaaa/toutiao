@@ -8,19 +8,29 @@
 
     <van-tabs v-model="active" swipeable>
       <van-tab v-for="item in channels" :key="item.id" :title="item.name">
-      <ArticleList :id="item.id"/>
+        <ArticleList :id="item.id" />
       </van-tab>
-      <span class="toutiao toutiao-gengduo"></span>
+      <span class="toutiao toutiao-gengduo" @click="show = true"></span>
     </van-tabs>
+    <van-popup
+      closeable
+      close-icon-position="top-left"
+      v-model="show"
+      position="bottom"
+      :style="{ height: '100%' }"
+      ><ChannelDeit @change-active="[(show = false),(active = $event)]" :myChannels="channels"
+    /></van-popup>
   </div>
 </template>
 
 <script>
 import { getChannelAPI } from '@/api'
 import ArticleList from './components/ArticleList.vue'
+import ChannelDeit from './components/ChannelEdit1.vue'
 export default {
   components: {
-    ArticleList
+    ArticleList,
+    ChannelDeit
   },
   created() {
     this.getChannel()
@@ -28,7 +38,8 @@ export default {
   data() {
     return {
       active: 0,
-      channels: []
+      channels: [],
+      show: false
     }
   },
   // 1. ?? ==> 相当于 || 常用语句
