@@ -24,6 +24,10 @@
         //   - eventBus 
         //   - promise 异步的时候
         // 9. promise除了链式调用以外，还可以多次调用
+        // 10. promise的链式调用
+        // 11. then方法出错, 在下一个then中能够拿到错误的原因
+        // 12. then方法回调的是异步的
+        // 13. then方法回调renturn的结果, 一定能在下一个then的成功的回调接收
         const PENDING = 'pending'
         const FULFILLED = 'fulfilled'
         const REJECTED = 'rejected'
@@ -55,18 +59,58 @@
                 }
             }
             then(onFulfilled, onRejected) {
-                if (this.status === FULFILLED) {
-                    onFulfilled(this.value)
-                }
-                if (this.status === REJECTED) {
-                    onRejected(this.reason)
-                }
-                if (this.status === PENDING) {
-                    // this.onFulfilled = onFulfilled
-                    // this.onRejected = onRejected
-                    this.onFulfilledCallBacks.push(() => onFulfilled(this.value))
-                    this.onRejectedCallBacks.push(() => onRejected(this.reason))
-                }
+                const p2 = new Promise((resolve, reject) => {
+                    if(this.status ===FULFILLED){
+                        queueMicrotask(() => {
+                            if (this.status === FULFILLED) {
+                                try {
+                                  const x =  onFulfilled(this.value)
+                                  resolve(x)
+                                } catch (error) {
+                                    reject(error)
+                                }
+                            }
+                        })
+                    }
+                    if(this.status === REJECTED){
+                        queueMicrotask(() => {
+                            if (this.status === REJECTED) {
+                                try {
+                                 const x =  onRejected(this.reason)
+                                 resolve(x)
+                                } catch (error) {
+                                    reject(error)
+                                }
+                            }
+                        })
+                    }
+                    if (this.status === PENDING) {
+                        // this.onFulfilled = onFulfilled
+                        // this.onRejected = onRejected
+
+                        this.onFulfilledCallBacks.push(() => {
+                            queueMicrotask(() => {
+                                try {
+                                    onFulfilled(this.value)
+                                } catch (error) {
+                                    reject(error)
+                                }
+                            })
+                        })
+                        this.onRejectedCallBacks.push(() => {
+                            queueMicrotask(() => {
+                                try {
+                                    onRejected(this.reason)
+                                } catch (error) {
+                                    reject(error)
+                                }
+                            })
+
+                        })
+                    }
+
+                })
+                return p2
             }
         }
         const p = new Promise((resolve, reject) => {
