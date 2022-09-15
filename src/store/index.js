@@ -21,14 +21,15 @@ export default new Vuex.Store({
     createPersistedState({
       key: 'HEIMA_TOUTIAO',
       // storage:window.sessionStorage
-      reduceRight({ tokenObj, mychannels }) {
-        return { tokenObj, mychannels }
+      reduceRight({ tokenObj, mychannels, histories }) {
+        return { tokenObj, mychannels, histories }
       }
     })
   ],
   state: {
     tokenObj: {},
-    mychannels: []
+    mychannels: [],
+    histories: []
   },
   getters: {
     isLogin(state) {
@@ -41,6 +42,9 @@ export default new Vuex.Store({
     },
     SET_MY_CHANNELS(state, channel) {
       state.myChannels = channel
+    },
+    SET_HISTORYES(state, histories) {
+      state.histories = histories
     }
   },
   actions: {},
